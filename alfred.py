@@ -7,7 +7,7 @@ import sys
 
 from xml.etree.ElementTree import Element, SubElement, tostring
 
-_MAX_RESULTS = 9
+_MAX_RESULTS = 100
 UNESCAPE_CHARACTERS = u"""\\ ()[]{};`'"$"""
 
 preferences = plistlib.readPlist('info.plist')
