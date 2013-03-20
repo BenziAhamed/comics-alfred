@@ -11,6 +11,7 @@ import imp
 import os
 import alfred
 import sys
+from optparse import OptionParser
 
 PluginFolder = "./plugins"
 MainModule = "main"
@@ -35,29 +36,48 @@ def runPlugin(name):
 	if ( plugin.enabled() ):
 		plugin.run();
 
-def comics():
-	if len(sys.argv) == 2:
-		comic = sys.argv[1]
-		runPlugin(comic)
-		return
-
+def searchComics(search_term):
 	feedback_items = []
 	for i in getPlugins():
 		plugin = loadPlugin(i)
-		if (plugin.enabled()):
+		title = plugin.title()
+		subtitle = plugin.subtitle()
+		should_add = (plugin.enabled() 
+			and (search_term == None 
+				or title.lower().find(search_term.lower()) >= 0 
+				or subtitle.lower().find(search_term.lower()) >= 0)
+			)
+		if should_add:	
 			feedback_items.append(
 				alfred.Item(
 					attributes = { 
 					'uid' : alfred.uid(i["name"]),
 					'arg' : i["name"]
 					},
-					title = plugin.title(),
-					subtitle = plugin.subtitle(),
+					title = title,
+					subtitle = subtitle,
 					icon = os.path.join(i["location"], "icon.png")
 				)
 			)
 	xml = alfred.xml(feedback_items)
 	alfred.write(xml)
+
+def loadComic(comic_id):
+	runPlugin(comic_id)
+
+def comics():
+	parser = OptionParser()
+	parser.add_option("-s", "--search", dest="search", 
+				  help="seach for a comic", metavar="SEARCH_TERM")
+	parser.add_option("-l", "--load", dest="load", 
+				  help="load a comic", metavar="COMIC_ID")
+	(options, args) = parser.parse_args()
+
+	if(options.load == None):
+		searchComics(options.search)
+	else:
+		loadComic(options.load)
+
 
 if __name__ == "__main__":
     comics()
