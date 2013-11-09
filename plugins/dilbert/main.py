@@ -9,9 +9,8 @@ def subtitle():
 
 def run():
 	import feedparser
-	import re
 	import os
-	d = feedparser.parse('http://feed.dilbert.com/dilbert/daily_strip?format=xml')
-	strip = re.match(r'<img[^>]*\ssrc="(.*?)"' , d['entries'][0]['summary_detail']['value'], re.IGNORECASE).groups(0)[0]
+	d = feedparser.parse('http://dilbert.com/fast')
+	strip = [i[5:-1] for i in d['feed']['summary'].split() if i.find('str_strip') > 0][0]
 	os.system('curl -s ' + strip + ' --O strip.png')
-	os.system('qlmanage -p strip.png')	
+	os.system('qlmanage -p strip.png')
